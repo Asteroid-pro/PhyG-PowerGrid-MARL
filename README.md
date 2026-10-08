@@ -115,8 +115,6 @@ Reward 由以下因素组成：
 - 发电机电压支撑成本；
 - 潮流失败和电压崩溃终止惩罚。
 
-训练内部可能使用 `reward_scale=0.1`，但日志和离线评估中的 `total_reward` 使用环境原始 Reward。
-
 主要指标：
 
 - `survival_rate`：运行到 200 步 time limit 的 episode 比例；
@@ -132,8 +130,6 @@ Reward 由以下因素组成：
 \[
 BalancedScore=SurvivalRate+0.5\times LoadRatio-0.5\times HighVoltageRate.
 \]
-
-Balanced Score 用于 checkpoint 选择和综合比较，不等于训练 Reward。
 
 ## 6. 目录说明
 
@@ -370,7 +366,6 @@ baseline_comparison/training_curves/
 - 50-Episode Mean Load Ratio；
 - 50-Episode Mean High-Voltage Rate。
 
-每张图同时显示 seed 42、43、44。正文建议展示 PhyG、PPO、MAPPO 等代表性方法；七种 baseline 独立图可放附录。
 
 ## 14. 参数量和推理开销
 
@@ -402,7 +397,6 @@ baseline_comparison/benchmark/model_cost_summary.csv
 - P50/P95 延迟；
 - 每秒决策次数。
 
-注意：参数量统计必须避免对 `module.modules()` 重复累加。PhyG 冻结版应区分总参数量和可训练参数量：冻结表示仍参与推理，但不参与训练更新。
 
 ## 15. 严格统计显著性
 
@@ -427,44 +421,7 @@ training_seed + test_seed
 - 同时报告均值差、95% 置信区间和实际胜/平/负数量。
 
 
-## 16. 推荐论文实验结构
-
-建议使用以下结构：
-
-```text
-6.1 核心方法对比
-    PPO、IPPO、MAPPO、GRU-MAPPO、GAT-MAPPO、QMIX、MAT、PhyG
-
-6.2 训练过程与稳定性
-    三 seed 曲线、均值和标准差
-
-6.3 结构消融
-    full、no_gnn、no_transformer、local_only/mix
-
-6.4 冻结与端到端训练
-    V2.2.2 与 V3.1 曲线、退化和可训练参数量
-
-6.5 轻量化与计算成本
-    参数量、推理延迟、P95、决策频率和性能—成本散点图
-
-6.6 Checkpoint 退化分析
-    best_balanced、best_reward、best_survival、final
-
-6.7 统计显著性
-    PhyG 与主要 baseline 的配对比较
-```
-
-正式模块消融仍应重新训练：
-
-```text
-Local-only MAPPO
-GNN + MAPPO
-Transformer + MAPPO
-GNN + Transformer + MAPPO
-```
-
-
-## 17. 当前结果摘要
+## 16. 当前结果摘要
 
 已有统一离线评估显示，PhyG V2.2.2 的 `best_balanced` checkpoint 约为：
 
@@ -494,22 +451,6 @@ baseline_comparison/evaluation/method_summary.csv
 
 > 在当前 IEEE14 攻防环境、训练预算和统一测试协议下，PhyG 以可接受的推理成本取得了更好的安全—供电综合性能。
 
-## 18. 已知限制
-
-- 当前图状态通道未纳入 FDI/DoS 攻击；
-- 当前环境是 IEEE14 仿真，不代表真实大规模电网；
-- 当前动作空间主要是三档负荷控制和发电机电压支撑；
-- 零样本模块消融不能替代正式重训消融；
-- 端到端训练不优于冻结版本的结论限定于当前环境、预算和超参数；
-- 训练时间没有纳入最终成本比较；
-- MAT、QMIX 等 baseline 的实现应在论文中准确描述为本项目统一环境下的适配版本；
-- 当前结果不能直接等同于生产系统部署性能。
-
-## 19. 论文写作辅助文档
-
-```text
-paper.md
-```
 
 
 ---
